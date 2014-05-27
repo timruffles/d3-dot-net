@@ -1,3 +1,4 @@
+var usdToGbp = 0.59;
 var DATA = [
   [ "Nurse", 22000, "http://www.prospects.ac.uk/adult_nurse_salary.htm" ],
   [ "Trader", 1e5, "http://www.prospects.ac.uk/financial_trader_salary.htm" ],
@@ -10,8 +11,9 @@ var DATA = [
   [ "David Cameron", 142500, "TODO" ],
   [ "Prince Charles", 18e6, "http://www.dailymail.co.uk/news/article-2350699/First-Queen-Prince-Charles-enjoys-pay-rise-Welcome-boost-meet-growing-demands-William-Kate-Harry.html" ],
   [ "FTSE 100 CEO", 4.3e6, "http://highpaycentre.org/blog/fatcat-wednesday-for-ftse-100-ceos" ],
+  [ "All of FTSE 100 CEOs", 4.3e8, "http://highpaycentre.org/blog/fatcat-wednesday-for-ftse-100-ceos" ],
   [ "Wayne Rooney", 1.55e7, "http://www.independent.ie/sport/wayne-rooney-and-the-top-10-highest-earning-players-in-world-football-30033217.html" ],
-  [ "George Soros", 4e9, "http://www.forbes.com/pictures/mdg45eejfh/1-george-soros/"],
+  [ "George Soros", 4e9 * usdToGbp, "http://www.forbes.com/pictures/mdg45eejfh/1-george-soros/"],
   [ "Rich Ricci", 40e6, "http://www.theguardian.com/business/2011/mar/07/barclays-hands-five-bankers-110m" ],
   [ "Donald Trump", 25.2e6, "http://www.salary-money.com/donald-trump-salary-42000000.php" ],
   [ "Tony Blair", 13e6, "http://www.telegraph.co.uk/news/politics/tony-blair/10551183/Tony-Blairs-fortune-boosted-13m-by-bumper-year.html" ],

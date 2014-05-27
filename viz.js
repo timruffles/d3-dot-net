@@ -1,9 +1,7 @@
-
-
 function block() {
 
   var scale = d3.scale.quantile()
-    .range(["Average","Medium","High","Very rich","UHNW","Extreme"]);
+    .range([1,2,3,4,5,6]);
 
   var value = function(d) {
     return d.value;
@@ -15,8 +13,6 @@ function block() {
   var toLog10 = function(x) {
     return Math.log(x) / log10;
   }
-
-  var groups = 5;
 
   function nest(data) {
     var domain = d3.extent(data,logValue);

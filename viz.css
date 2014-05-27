@@ -1,6 +1,17 @@
 * {
   box-sizing: border-box;
 }
+body {
+  font-family: sans-serif;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-weight: 100;
+}
+
+#viz {
+  overflow: auto;
+}
+
 .unit {
   float: left;
   width: 10px;
@@ -12,10 +23,47 @@
   overflow: auto;
 }
 
+.salary {
+  margin: 0.5rem 0;
+  overflow: auto;
+  cursor: pointer;
+}
+.salary h4 {
+  float: left;
+  clear: left;
+  margin: 0;
+  width: 10rem;
+}
+.salary .track {
+  float: left;
+}
+
 .group {
   float: left;
   border-radius: 5px;
   border: 1px solid rgba(0,0,0,0.5);
   margin-right: 0.5em;
   padding: 0.5rem;
+  min-height: 15rem;
+}
+
+#compare {
+  overflow: auto;
+}
+.compared {
+  float: left;
+  width: 50%;
+}
+
+.multiple-visual {
+  overflow: auto;
+  clear: both;
+}
+.multiple-visual .item {
+   float: left; 
+   background: red;
+   display: block;
+}
+.multiple-visual .item.lower {
+   background: blue;
 }
