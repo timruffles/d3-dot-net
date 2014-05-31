@@ -1,95 +1,47 @@
-var layout = block()
-  .group(function(value) {
-    if(value < 1000) return 100;
-    if(value < 1e6) return 1000;
-    if(value < 1e9) return 1e6;
-    if(value < 1e12) return 1e9;
-    return 1e12;
-  });
+var vizEl = document.getElementById("viz");
+draw(vizEl,DATA);
 
-function groupNames(value) {
-  if(value < 1000) return "Hundreds";
-  if(value < 1e6) return "Thousands";
-  if(value < 1e9) return "Millions";
-  if(value < 1e12) return "Billions";
-  return "Trillions";
-};
+function draw(el,data) {
 
-var thousands = d3.format("0,000");
+  var layout = blockLayout()
+    .group(function(value) {
+      if(value < 1000) return 100;
+      if(value < 1e6)  return 1000;
+      if(value < 1e9)  return 1e6;
+      if(value < 1e12) return 1e9;
+      return 1e12;
+    });
 
-main();
-
-function main() {
-  var compareEl = document.getElementById("compare");
-  var compareFn = comparison(compareEl);
-
-  var vizEl = document.getElementById("viz");
-
-  addSalaryForm(document.getElementById("add-salary"),function(salary) {
-    DATA.push(salary);
-    draw(vizEl,DATA); 
-  });
-
-  draw(vizEl,DATA,compareFn);
-}
-
-function draw(el,data,compare) {
-  data.sort(function(a,b) {
-    return b.value - a.value;
-  });
-
+  var thousands = d3.format("0,000");
   var color = d3.scale.category20();
 
-  var groups = layout(data)
-
-
-  el = d3.select(el);
-
-  var groups = el
+  var groups = d3.select(el)
     .selectAll(".group")
-    .data(groups);
-
-  groups.exit().remove();
+    .data(layout(data));
 
   // add the top level groups
   var groupsEntering = groups.enter()
     .append("div")
-    .classed("group",true)
+    .attr("class","group")
 
   groupsEntering
    .append("h2")
-   .text(pipe(get("key"),parseInt,groupNames));
+   .text(function(d) {
+     return currency(parseInt(d.key));
+   })
 
   var salaries = groups.selectAll(".salary")
-    .data(function(x) {
-      var values = x.values;
-      if(!x.less) return values;
-      return values.concat({
-        title: "Everyone from previous group's salaries",
-        value: x.less.total,  
-        group: x,
-        fromLast: true,
-      })
-    });
+    .data(function(x) { return x.values; });
 
   var salariesEntering = salaries.enter()
     .append("div")
-    .classed("salary",true)
-    .classed("from-last",get("fromLast"))
-    .on("click",compare);
+    .attr("class","salary")
 
-  salariesEntering
-    .append("div")
-    .classed("track",true);
+  salariesEntering.append("div")
+    .attr("class","track");
 
-  salariesEntering
-    .append("h4");
-
-  salaries
-    .select("h4")
-    .text(get("title"))
-
-  salaries.exit().remove();
+  salariesEntering.append("h4")
+    .text(salaryTitle);
 
   var units = salaries
     .select(".track")
@@ -97,157 +49,83 @@ function draw(el,data,compare) {
       return currency(salary.value);
     })
     .selectAll(".unit")
-    .data(function(salary) {
-       var unit = salary.group.key;
-       var blockCount = Math.ceil(salary.value/unit);
-       return repeatMap(blockCount,constantly(salary));
-    })
-
-  units
+    .data(createBlocks)
     .enter()
     .append("div")
-    .classed("unit",true)
-
-  units
+    .attr("class","unit")
     .style("background",function(salary) {
       return color(salary.group.key);
     });
 
-  units.exit().remove();
+  function createBlocks(salary) {
+     var blockCount = salary.units;
+     var blocks = [];
+     while(blockCount--) blocks.push(salary);
+     return blocks;
+  }
+
+  function salaryTitle(d) {
+    if(d.fromLast) return "Everyone from previous group's salaries";
+    return d.title;
 }
 
-function comparison(el) {
-
-  var LIFETIME_IN_YEARS = 45;
-
-  el = d3.select(el);
-
-  var items = el.selectAll(".compared");
-
-  var compare = [];
-  var added = [];
-
-  function picked(salary) {
-    added.unshift(salary);
-    compare = added.slice(0,2);
-    compare.sort(function(a,b) {
-      return a.value - b.value;
-    })
-
-    var compared = items.data(compare);
-
-    compared
-      .select("h3")
-      .text(get("title"));
-
-    compared
-      .select(".amount")
-      .text(pipe(get("value"),currency))
-
-    if(compare.length < 2) return;
-
-    var lower = compare[0];
-    var higher = compare[1];
-
-    var multiple = higher.value / lower.value;
-    var multipleSet = [1,Math.sqrt(multiple)];
-
-    // TODO make selection of wording based on difference, e.g
-    // if similar, don't do the 'lifetime earnings' thing
-    el.select(".higher .mult")
-      .text(function() {
-        var lifetimes = higher.value / (lower.value * LIFETIME_IN_YEARS);
-        return thousands(lifetimes.toFixed(1));
-      })
-
-    el.select(".lower .mult")
-      .text(function() {
-        return thousands(multiple.toFixed(0));
-      })
-
-    el.selectAll(".multiple-visual .item")
-      .data(multipleSet)
-      .style("width",scaledPx)
-      .style("height",scaledPx);
-
-    el.selectAll(".wage")
-      .data(compare)
-      .text(pipe(get("value"),ukHourly,currency));
-
-    function scaledPx(x) {
-      return x * 5 + "px";
-    }
-  };
-
-  return picked;
+  function currency(x) {
+    return "£" + thousands(x.toFixed(2));
+  }
 }
 
-function ukHourly(a) {
-  return hourly(a,220,8);
-}
-function hourly(annual,daysWorked,hoursWorked) {
-  return annual / (daysWorked * hoursWorked);
-}
+function blockLayout() {
 
-function addSalaryForm(el,cb) {
-  el = d3.select(el)
-  el.on("submit",function() {
-    d3.event.preventDefault();
-    var form = d3.select(this);
-    var name = form.select("[name=name]");
-    var salary = form.select("[name=salary]");
-    cb({
-      title: name.property("value"),
-      value: parseInt(salary.property("value")),
+  function layout(data) {
+
+    data.sort(function(a,b) {
+      return b.value - a.value;
     });
-    name.property("value","");
-    salary.property("value","");
-  });
-}
 
-function currency(x) {
-  return "£" + thousands(x.toFixed(2));
-}
-function identity(x) {
-  return x;
-}
-function constantly(x) {
-  return function() {
-    return x;
+    var nested = d3.nest()
+      .key(function(d) { return grouper(d.value) })
+      .entries(data)
+      .map(function(group) {
+        group.values.forEach(function(v) {
+          v.units = getUnits(v,group);
+          v.group = group;
+        });
+
+        group.total = group.values.reduce(sumValues,0);
+
+        return group;
+      });
+
+    // each group has access to previous group and we add an additional
+    // value: the total of the previous group
+    d3.pairs(nested).forEach(function(pair) {
+      pair[0].less = pair[1];
+      var comparison = {
+        value: pair[1].total,
+        group: pair[0],
+        fromLast: true,
+      };
+      comparison.units = getUnits(comparison,pair[0]);
+      pair[0].values.push(comparison);
+    });
+
+    return nested;
   }
-}
-function pxer(fn) {
-  return function() {
-    return fn.apply(null,arguments) + "px"
+
+  function grouper(v) {
+    return Math.log(v);
   }
-}
 
-function get(p) {
-  return function(o) {
-    return o[p];
+  layout.group = function(x) { grouper = x; return this; };
+
+  return layout;
+
+  function getUnits(value,group) {
+    var unit = parseInt(group.key);
+    return Math.ceil(value.value/unit);
   }
-}
 
-function repeatMap(n,fn) {
-  var times = [];
-  while(n--) times.push(fn());
-  return times;
-}
-
-function p(x) { return console.log(x) }
-
-
-// compose functions left to right,
-// more readable than 'compose'
-//   => pipe(parseInt,Math.sqrt)("64.928")
-//   8
-function pipe() {
-  var fns = arguments;
-  return function() {
-    var value = arguments;
-    for(var i = 0; i < fns.length; i++) {
-      value = [fns[i].apply(null,value)];
-    }
-    return value[0];
+  function sumValues(a,s) {
+    return a + s.value;
   }
 }

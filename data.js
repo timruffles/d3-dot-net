@@ -11,7 +11,6 @@ var DATA = [
   [ "Civil engineers", c('£',39236), "http://www.thisismoney.co.uk/money/article-2269520/Best-paid-jobs-2012-Official-figures-national-average-UK-salaries-400-occupations.html" ],
   [ "Physical scientists", c('£',49333), "http://www.thisismoney.co.uk/money/article-2269520/Best-paid-jobs-2012-Official-figures-national-average-UK-salaries-400-occupations.html" ],
   [ "Vicky Pryce - ex Director General", c('£',175000), "http://www.bbc.co.uk/news/10202596" ],
-  [ "John Suffolk - HM CIO", c('£',207000), "http://www.bbc.co.uk/news/10202596" ],
   [ "David Cameron", c('£',142500), "TODO" ],
   [ "Prince Charles", c('£',18e6), "http://www.dailymail.co.uk/news/article-2350699/First-Queen-Prince-Charles-enjoys-pay-rise-Welcome-boost-meet-growing-demands-William-Kate-Harry.html" ],
   [ "FTSE 100 CEO", c('£',4.3e6), "http://highpaycentre.org/blog/fatcat-wednesday-for-ftse-100-ceos" ],
@@ -28,8 +27,8 @@ var DATA = [
   [ "Apple - profit", c('$',41733e6), "http://money.cnn.com/gallery/magazines/fortune/2013/07/08/global-500-most-profitable.fortune/index.html" ],
   [ "Gazprom - profit",  c('$',38086e6), "http://money.cnn.com/gallery/magazines/fortune/2013/07/08/global-500-most-profitable.fortune/index.html" ],
   [ "Bank of China - profit",   c('$',37806e6), "http://money.cnn.com/gallery/magazines/fortune/2013/07/08/global-500-most-profitable.fortune/index.html" ],
-  [ "United States total tax income",   c('$',3.6e12), "http://money.cnn.com/gallery/magazines/fortune/2013/07/08/global-500-most-profitable.fortune/index.html" ],
-  [ "United Kingdom total tax income",   c('$',800e9), "http://money.cnn.com/gallery/magazines/fortune/2013/07/08/global-500-most-profitable.fortune/index.html" ],
+  [ "United States total tax income",   c('$',3.6e12), "http://stats.oecd.org/Index.aspx?DataSetCode=REV#" ],
+  [ "United Kingdom total tax income",   c('$',800e9), "http://stats.oecd.org/Index.aspx?DataSetCode=REV#" ],
 
 ].map(function(x) {
   return {

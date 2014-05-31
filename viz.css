@@ -12,6 +12,43 @@ h1,h2,h3,h4,h5,h6 {
   overflow: auto;
 }
 
+.group {
+  float: left;
+  margin-right: 0.5em;
+  padding: 0.5rem;
+  overflow: auto;
+  width: 32%;
+}
+.group:nth-child(1) {
+  width: 100%;
+  height: 10rem;
+}
+.group:nth-child(1) h2 {
+  float: left;
+  width: 15rem;
+}
+
+.salaries {
+  overflow: auto;
+}
+
+.salary {
+  margin: 0.5rem 0.25rem 0.5rem 0;
+  overflow: auto;
+  cursor: pointer;
+  width: 13rem;
+  float: left;
+}
+.salary h4 {
+  float: left;
+  clear: left;
+  margin: 0.5rem 0 1rem 0;
+  width: 10rem;
+}
+.salary .track {
+  float: left;
+}
+
 .unit {
   float: left;
   width: 10px;
@@ -22,48 +59,4 @@ h1,h2,h3,h4,h5,h6 {
 .track {
   overflow: auto;
   width: 200px;
-}
-
-.salary {
-  margin: 0.5rem 0;
-  overflow: auto;
-  cursor: pointer;
-}
-.salary h4 {
-  float: left;
-  clear: left;
-  margin: 0;
-  width: 10rem;
-}
-.salary .track {
-  float: left;
-}
-
-.group {
-  float: left;
-  border: 1px solid rgba(0,0,0,0.5);
-  margin-right: 0.5em;
-  padding: 0.5rem;
-  min-height: 15rem;
-}
-
-#compare {
-  overflow: auto;
-}
-.compared {
-  float: left;
-  width: 50%;
-}
-
-.multiple-visual {
-  overflow: auto;
-  clear: both;
-}
-.multiple-visual .item {
-   float: left; 
-   background: red;
-   display: block;
-}
-.multiple-visual .item.lower {
-   background: blue;
 }
