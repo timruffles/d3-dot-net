@@ -1,5 +1,13 @@
-var layout = block();
-var thousands = d3.format("0,000")
+var layout = block()
+  .group(function(value) {
+    if(value < 1000) return 100;
+    if(value < 1e6) return 1000;
+    if(value < 1e9) return 1e6;
+    return 1e9;
+  });
+
+var thousands = d3.format("0,000");
+
 main();
 
 function main() {
@@ -23,7 +31,8 @@ function draw(el,data,compare) {
 
   var color = d3.scale.category20();
 
-  var groups = layout(data);
+  var groups = layout(data)
+
 
   el = d3.select(el);
 
@@ -38,11 +47,9 @@ function draw(el,data,compare) {
     .append("div")
     .classed("group",true)
 
- groupsEntering
+  groupsEntering
    .append("h2")
-   .text(function(d) {
-     return thousands(d.key)
-   });
+   .text(pipe(get("key"),parseInt,currency));
 
   var salaries = groups.selectAll(".salary")
     .data(function(x) {
@@ -69,9 +76,7 @@ function draw(el,data,compare) {
 
   salaries
     .select("h4")
-    .text(function(d) {
-      return d.title
-    });
+    .text(get("title"))
 
   salaries.exit().remove();
 
@@ -82,10 +87,9 @@ function draw(el,data,compare) {
     })
     .selectAll(".unit")
     .data(function(salary) {
-       var unit = salary.group.unit;
-       return nMap(Math.ceil(salary.value/unit),function() {
-         return salary;
-       });
+       var unit = salary.group.key;
+       var blockCount = Math.ceil(salary.value/unit);
+       return repeatMap(blockCount,constantly(salary));
     })
 
   units
@@ -101,16 +105,9 @@ function draw(el,data,compare) {
   units.exit().remove();
 }
 
-function nMap(n,fn) {
-  var m = n;
-  var times = [];
-  while(n--) times.push(m - n);
-  return times.map(fn);
-}
-
-function p(x) { return console.log(x) }
-
 function comparison(el) {
+
+  var LIFETIME_IN_YEARS = 45;
 
   el = d3.select(el);
 
@@ -125,11 +122,16 @@ function comparison(el) {
     compare.sort(function(a,b) {
       return a.value - b.value;
     })
-    items.data(compare)
+
+    var compared = items.data(compare);
+
+    compared
       .select("h3")
-      .text(function(d) {
-        return d.title
-      })
+      .text(get("title"));
+
+    compared
+      .select(".amount")
+      .text(pipe(get("value"),currency))
 
     if(compare.length < 2) return;
 
@@ -143,7 +145,8 @@ function comparison(el) {
     // if similar, don't do the 'lifetime earnings' thing
     el.select(".higher .mult")
       .text(function() {
-        return thousands((higher.value / (lower.value * 45)).toFixed(1));
+        var lifetimes = higher.value / (lower.value * LIFETIME_IN_YEARS);
+        return thousands(lifetimes.toFixed(1));
       })
 
     el.select(".lower .mult")
@@ -153,14 +156,16 @@ function comparison(el) {
 
     el.selectAll(".multiple-visual .item")
       .data(multipleSet)
-      .style("width",pxer(identity))
-      .style("height",pxer(identity));
+      .style("width",scaledPx)
+      .style("height",scaledPx);
 
     el.selectAll(".wage")
       .data(compare)
-      .text(function(salary) {
-        return currency(ukHourly(salary.value))
-      });
+      .text(pipe(get("value"),ukHourly,currency));
+
+    function scaledPx(x) {
+      return x * 5 + "px";
+    }
   };
 
   return picked;
@@ -192,7 +197,46 @@ function addSalaryForm(el,cb) {
 function currency(x) {
   return "£" + thousands(x.toFixed(2));
 }
-function identity(x) { return x * 5 };
+function identity(x) {
+  return x;
+}
+function constantly(x) {
+  return function() {
+    return x;
+  }
+}
 function pxer(fn) {
-  return function() { return fn.apply(null,arguments) + "px" }
+  return function() {
+    return fn.apply(null,arguments) + "px"
+  }
+}
+
+function get(p) {
+  return function(o) {
+    return o[p];
+  }
+}
+
+function repeatMap(n,fn) {
+  var times = [];
+  while(n--) times.push(fn());
+  return times;
+}
+
+function p(x) { return console.log(x) }
+
+
+// compose functions left to right,
+// more readable than 'compose'
+//   => pipe(parseInt,Math.sqrt)("64.928")
+//   8
+function pipe() {
+  var fns = arguments;
+  return function() {
+    var value = arguments;
+    for(var i = 0; i < fns.length; i++) {
+      value = [fns[i].apply(null,value)];
+    }
+    return value[0];
+  }
 }
