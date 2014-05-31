@@ -1,41 +1,36 @@
 function block() {
 
-  var scale = d3.scale.quantile()
-    .range([1,2,3,4,5,6]);
-
   var value = function(d) {
     return d.value;
   };
-  var logValue = function(d) {
-    return toLog10(value(d));
-  }
-  var log10 = Math.log(10);
-  var toLog10 = function(x) {
-    return Math.log(x) / log10;
+
+  var grouped = function(d) {
+    d = value(d);
+    if(d < 1000) return 100;
+    if(d < 1e6) return 1000;
+    if(d < 1e9) return 1e6;
+    return 1e9;
   }
 
   function nest(data) {
-    var domain = d3.extent(data,logValue);
-    scale = scale.domain(domain);
     var nested = d3.nest()
-      .key(function(d) {
-        return scale(logValue(d));
-      })
+      .key(grouped)
       .entries(data)
       .map(function(group) {
-        var lowest = d3.min(group.values,value);
-        group.unit = lowest / 3;
+        group.unit = group.key;
         group.values.forEach(function(v) {
           v.group = group;
         });
         group.total = group.values.reduce(function(a,s) {
-          return a + s.value;
+          return a + value(s);
         },0);
         return group;
       });
+
     d3.pairs(nested).forEach(function(pair) {
       pair[0].less = pair[1];
     });
+
     return nested;
   }
 

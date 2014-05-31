@@ -17,10 +17,11 @@ h1,h2,h3,h4,h5,h6 {
   width: 10px;
   height: 10px;
   background: red;
-  margin-right: 1px;
+  margin: 1px 1px 0 0;
 }
 .track {
   overflow: auto;
+  width: 200px;
 }
 
 .salary {

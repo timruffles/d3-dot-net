@@ -38,11 +38,11 @@ function draw(el,data,compare) {
     .append("div")
     .classed("group",true)
 
-//  groupsEntering
-//    .append("h2")
-//    .text(function(d) {
-//      return d.key
-//    });
+ groupsEntering
+   .append("h2")
+   .text(function(d) {
+     return thousands(d.key)
+   });
 
   var salaries = groups.selectAll(".salary")
     .data(function(x) {
@@ -61,11 +61,11 @@ function draw(el,data,compare) {
     .on("click",compare);
 
   salariesEntering
-    .append("h4");
-
-  salariesEntering
     .append("div")
     .classed("track",true);
+
+  salariesEntering
+    .append("h4");
 
   salaries
     .select("h4")
