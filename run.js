@@ -3,8 +3,17 @@ var layout = block()
     if(value < 1000) return 100;
     if(value < 1e6) return 1000;
     if(value < 1e9) return 1e6;
-    return 1e9;
+    if(value < 1e12) return 1e9;
+    return 1e12;
   });
+
+function groupNames(value) {
+  if(value < 1000) return "Hundreds";
+  if(value < 1e6) return "Thousands";
+  if(value < 1e9) return "Millions";
+  if(value < 1e12) return "Billions";
+  return "Trillions";
+};
 
 var thousands = d3.format("0,000");
 
@@ -49,7 +58,7 @@ function draw(el,data,compare) {
 
   groupsEntering
    .append("h2")
-   .text(pipe(get("key"),parseInt,currency));
+   .text(pipe(get("key"),parseInt,groupNames));
 
   var salaries = groups.selectAll(".salary")
     .data(function(x) {
@@ -59,12 +68,14 @@ function draw(el,data,compare) {
         title: "Everyone from previous group's salaries",
         value: x.less.total,  
         group: x,
+        fromLast: true,
       })
     });
 
   var salariesEntering = salaries.enter()
     .append("div")
     .classed("salary",true)
+    .classed("from-last",get("fromLast"))
     .on("click",compare);
 
   salariesEntering
