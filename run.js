@@ -99,7 +99,6 @@ function blockLayout() {
     // each group has access to previous group and we add an additional
     // value: the total of the previous group
     d3.pairs(nested).forEach(function(pair) {
-      pair[0].less = pair[1];
       var comparison = {
         value: pair[1].total,
         group: pair[0],

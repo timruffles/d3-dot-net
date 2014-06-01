@@ -19,6 +19,12 @@ open("article.md").read.split("\n").each do |line|
   next if section.done
   if /^```/ =~ line
     section.code = !section.code
+  elsif /^!\[/ =~ line
+    /\(([^\)]+)\)/ =~ line
+    diff = $1.split(" ").length - 20
+    if diff > 0
+      puts "Caption '#{$1}' #{diff} words too long"
+    end
   elsif /__END__/ =~ line
     section = Section.new
     section.done = true
