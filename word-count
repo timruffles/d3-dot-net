@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+class Section
+  attr_accessor :loc, :words, :code, :done
+  def initialize
+    @loc = @words = 0
+    @code = false
+    @done = false
+  end
+  def total
+    loc * 10 + words
+  end
+end
+
+section = Section.new
+sections = [section]
+
+open("article.md").read.split("\n").each do |line|
+  next if section.done
+  if /^```/ =~ line
+    section.code = !section.code
+  elsif /__END__/ =~ line
+    section = Section.new
+    section.done = true
+  elsif /__BOX__/ =~ line
+    section = Section.new
+    sections << section
+  elsif section.code
+    section.loc += 1
+  else
+    section.words += line.split(" ").length
+  end
+end
+
+sections.each_with_index do |s,i|
+  puts "Section #{i + 1}: total #{s.total}, loc: #{s.loc}"
+end
