@@ -2,7 +2,7 @@
 
 <p>D3&#39;s power and idioms are best appreciated through a real-world example, so we&#39;ll recreate XKCD&#39;s &quot;Money&quot; visualisation. We&#39;re going to take data on the income of people, firms and countries, and visualise them in broad groups of magnitude. This allows us to have very different incomes share the same visualisation. Presenting wildly variable data is otherwise challenging: if we visualised the UK minimum wage as a 2x2 pixel block, George Soros&#39;s annual income would be 960x960px!</p>
 
-<p><img src="img/target.png" alt="Incomes grouped by magnitude. This is the visualisation we&#39;ll be recreating"></p>
+<p><img src="../img/target.png" alt="Incomes grouped by magnitude. This is the visualisation we&#39;ll be recreating"></p>
 
 <p>Our task is split between data and presentation. A very common source of ugly D3 code is not getting your data in the right shape. This goes beyond fixing up APIs messy naming or parsing dates: the logical structure of your visualisation should be reflected by your data.</p>
 
@@ -79,7 +79,7 @@ var salaryGroups = layout(listOfSalaries);
 
 <p>Now we&#39;ve got our data in the right format we can start visualising. D3 is a thin wrapper around the DOM so your existing HTML, CSS, JS and SVG skills are all you&#39;ll need to figure this out. We have a hierarchy: top level groups of magnitude, then individual incomes, then the units of millions or billions. SVG great when need the kind of bizarre shape that HTML doesn&#39;t support, like the exotic &#39;circle&#39;, but this time we don&#39;t need such fanciness. I came up with this hierarchy:</p>
 
-<p><img src="img/sketch.jpg" alt="A sketch of the HTML/CSS implementation of the visualisation"></p>
+<p><img src="../img/sketch.jpg" alt="A sketch of the HTML/CSS implementation of the visualisation"></p>
 
 <p>Let&#39;s get started by appending top level groups:</p>
 
@@ -129,7 +129,7 @@ var salariesEntering = salaries.enter()
   width: 200px; }
 </code></pre>
 
-<p><img src="img/basic-styled.png" alt="Basic styled output"></p>
+<p><img src="../img/basic-styled.png" alt="Basic styled output"></p>
 
 <p>We could colour each group by hand, but <code>d3.scale</code> is here to help. Scales are D3&#39;s tool to relate ranges of values in your data to a range of presentation styles, for instance the age range 18-65 to the colors <code>#a00</code> to <code>#f00</code>. In this case we want a discrete set of colours:</p>
 
@@ -143,7 +143,7 @@ units.style(&quot;background&quot;,function(salary) {
 
 <p>With a few extra styling and markup tweaks we&#39;ve got a finished visualisation!</p>
 
-<p><img src="img/complete.png" alt="Complete - it&#39;s testament to D3 that we recreated the visualisation in under 150 lines of JS, HTML and CSS"></p>
+<p><img src="../img/complete.png" alt="Complete - it&#39;s testament to D3 that we recreated the visualisation in under 150 lines of JS, HTML and CSS"></p>
 
 <p><strong>BOX</strong></p>
 
@@ -174,7 +174,7 @@ units.style(&quot;background&quot;,function(salary) {
   })
 </code></pre>
 
-<p><img src="img/tiny-demo.png" alt="It&#39;s not much, but it&#39;s the first step to D3"></p>
+<p><img src="../img/tiny-demo.png" alt="It&#39;s not much, but it&#39;s the first step to D3"></p>
 
 <p>Here the <code>width</code> and text content of each element is derived from its corresponding datum.</p>
 
@@ -188,7 +188,7 @@ units.style(&quot;background&quot;,function(salary) {
 
 <p>Scales return a function that transforms values from our data - the <em>domain</em> - into values for our visualisation - the <em>range</em>. The simplest to understand is <code>d3.linear()</code>, which is a line on the XY axis.</p>
 
-<p><img src="img/scale-sketch.jpg" alt="Scales take values from our input domain and transform them into values in our output range for presentation"></p>
+<p><img src="../img/scale-sketch.jpg" alt="Scales take values from our input domain and transform them into values in our output range for presentation"></p>
 
 <p>Linear scales are useful, but there are many other types. If you have data with a huge range you can use <code>d3.scale.log()</code> to crunch down the variance into something graphable - the same technique used in the richter scale. <code>d3.scale.ordinal()</code> breaks data into categories.</p>
 
@@ -198,7 +198,7 @@ units.style(&quot;background&quot;,function(salary) {
 
 <p>As a demonstration, here&#39;s a colour wheel using two scales sharing the same domain: a hue scale and an angle scale:</p>
 
-<p><img src="img/color-wheel.png" alt="Making a colour wheel with a d3 scale"></p>
+<p><img src="../img/color-wheel.png" alt="Making a colour wheel with a d3 scale"></p>
 
 <p>You can see it live at truffles.me.uk/dotnet-d3/colour-wheel, and the code is at truffles.me.uk/dotnet-d3/colour-wheel-code.</p>
 
