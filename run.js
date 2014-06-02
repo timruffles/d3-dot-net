@@ -13,7 +13,7 @@ function draw(el,data) {
     });
 
   var thousands = d3.format("0,000");
-  var color = d3.scale.category20();
+  var color = d3.scale.category10();
 
   var groups = d3.select(el)
     .selectAll(".group")

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+github-markup article.md  > article/index.html
