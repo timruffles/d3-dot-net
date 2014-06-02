@@ -2,7 +2,7 @@
 
 D3's power and idioms are best appreciated through a real-world example, so we'll recreate XKCD's "Money" visualisation. We're going to take data on the income of people, firms and countries, and visualise them in broad groups of magnitude. This allows us to have very different incomes share the same visualisation. Presenting wildly variable data is otherwise challenging: if we visualised the UK minimum wage as a 2x2 pixel block, George Soros's annual income would be 960x960px!
 
-![Incomes grouped by magnitude. This is the visualisation we'll be recreating](img/target.png)
+![Incomes grouped by magnitude. This is the visualisation we'll be recreating](../img/target.png)
 
 Our task is split between data and presentation. A very common source of ugly D3 code is not getting your data in the right shape. This goes beyond fixing up APIs messy naming or parsing dates: the logical structure of your visualisation should be reflected by your data.
 
@@ -82,7 +82,7 @@ This layout is now reusable. If we had another dataset with huge variance, such 
 
 Now we've got our data in the right format we can start visualising. D3 is a thin wrapper around the DOM so your existing HTML, CSS, JS and SVG skills are all you'll need to figure this out. We have a hierarchy: top level groups of magnitude, then individual incomes, then the units of millions or billions. SVG great when need the kind of bizarre shape that HTML doesn't support, like the exotic 'circle', but this time we don't need such fanciness. I came up with this hierarchy:
 
-![A sketch of the HTML/CSS implementation of the visualisation](img/sketch.jpg)
+![A sketch of the HTML/CSS implementation of the visualisation](../img/sketch.jpg)
 
 Let's get started by appending top level groups:
 
@@ -137,7 +137,7 @@ CSS should define all styling that doesn't vary per datum. We want the units to 
   width: 200px; }
 ```
 
-![Basic styled output](img/basic-styled.png)
+![Basic styled output](../img/basic-styled.png)
 
 We could colour each group by hand, but `d3.scale` is here to help. Scales are D3's tool to relate ranges of values in your data to a range of presentation styles, for instance the age range 18-65 to the colors `#a00` to `#f00`. In this case we want a discrete set of colours:
 
@@ -152,7 +152,7 @@ units.style("background",function(salary) {
 
 With a few extra styling and markup tweaks we've got a finished visualisation!
 
-![Complete - it's testament to D3 that we recreated the visualisation in under 150 lines of JS, HTML and CSS](img/complete.png)
+![Complete - it's testament to D3 that we recreated the visualisation in under 150 lines of JS, HTML and CSS](../img/complete.png)
 
 
 
@@ -187,7 +187,7 @@ d3.select(vizEl).selectAll(".group")
   })
 ```
 
-![It's not much, but it's the first step to D3](img/tiny-demo.png)
+![It's not much, but it's the first step to D3](../img/tiny-demo.png)
 
 Here the `width` and text content of each element is derived from its corresponding datum.
 
@@ -202,7 +202,7 @@ Dataviz coding will always involve transforming values in our data into attribut
 
 Scales return a function that transforms values from our data - the *domain* - into values for our visualisation - the *range*. The simplest to understand is `d3.linear()`, which is a line on the XY axis.
 
-![Scales take values from our input domain and transform them into values in our output range for presentation](img/scale-sketch.jpg)
+![Scales take values from our input domain and transform them into values in our output range for presentation](../img/scale-sketch.jpg)
 
 Linear scales are useful, but there are many other types. If you have data with a huge range you can use `d3.scale.log()` to crunch down the variance into something graphable - the same technique used in the richter scale. `d3.scale.ordinal()` breaks data into categories.
 
@@ -212,7 +212,7 @@ One final powerful feature of scales is interpolation. Frequently we'll be trans
 
 As a demonstration, here's a colour wheel using two scales sharing the same domain: a hue scale and an angle scale:
 
-![Making a colour wheel with a d3 scale](img/color-wheel.png)
+![Making a colour wheel with a d3 scale](../img/color-wheel.png)
 
 You can see it live at truffles.me.uk/dotnet-d3/colour-wheel, and the code is at truffles.me.uk/dotnet-d3/colour-wheel-code.
 
