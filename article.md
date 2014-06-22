@@ -1,17 +1,19 @@
-# Practical D3
+# Wrangle and present data with D3
 
-D3's power and idioms are best appreciated through a real-world example, so we'll recreate XKCD's "Money" visualisation. We're going to take data on the income of people, firms and countries, and visualise them in broad groups of magnitude. This allows us to have very different incomes share the same visualisation. Presenting wildly variable data is otherwise challenging: if we visualised the UK minimum wage as a 2x2 pixel block, George Soros's annual income would be 960x960px!
+D3 is a toolkit for building visualisations from scratch. It's a thin wrapper around the DOM, so with HTML, CSS and JavaScript you’re already halfway there. It's tremendously powerful, and tremendous fun. Never again will you disappoint your designer by stuffing their expertly tuned Dribbble-fodder into a boring chart.
 
-![Incomes grouped by magnitude. This is the visualisation we'll be recreating](../img/target.png)
+D3 is best learned by example, so we'll recreate XKCD's "Money" visualisation. We'll take income data on people, firms and countries and visualise them grouped roughly by powers of one thousand.
 
-Our task is split between data and presentation. A very common source of ugly D3 code is not getting your data in the right shape. This goes beyond fixing up APIs messy naming or parsing dates: the logical structure of your visualisation should be reflected by your data.
+![Incomes grouped by magnitude. This is the inspiration for the visualisation we're creating.](../img/target.png)
 
-In our case we want to break the incomes down into magnitude groups, and then visualise them as blocks. We'll wrap up this process of data-processing in what D3 calls a 'layout'. Layouts sound visual, but actually are purely concerned with the data side of a given visualisation.
+Our task is split between data and presentation. If you try to visualise your data before you've wrangled it into the right shape you'll end up with a mess.
 
-The goal is to an array of data in the format `{ value: 2500000, title: "Jimmy Carr" }` into data in the following format. You can see that this reflects the visualisation: the previous group is included in the next for comparison, and we've calculated the number of unit blocks to display:
+We'll wrap up the data part in what D3 calls a 'layout'. Layouts sound visual, but are actually the data-wrangling side of a given visualisation. They're standard JavaScript functions called with input data and returning new data formatted for display. A histogram layout might be passed an array of 1,500 objects, and return an array of 10 arrays, each bucketing 150 objects. Displaying its output is entirely up to you - you might not even use D3. This splits the reusable data-processing algorithm from a specific presentation.
+
+We need to break the incomes down into magnitude groups, and then visualise them as blocks. Our income data is in the format `{ value: 2500000, title: "Jimmy Carr" }`, our target format is below. It reflects the visualisation: the previous group is included in the next for comparison, and we've calculated the number of unit blocks to display:
 
 ```javascript
-var data = [
+[
   {
     key: "1000000",
     total: 2124000000000,
@@ -21,54 +23,64 @@ var data = [
         units: 25 }, /* ... more salaries */
       { fromLast: true,
         value:  105000,
-        units: 1 } /* total of previous group */
+        units: 1 }, /* total of previous group */
     ]
   },  /* ... more groups of salaries */
 ];
 ```
 
-Let's implement it! Our layout is a hierarchical. `d3.nest()` helps here: it takes an array and groups its members by a given key function. To make our layout reusable we'll make this key a configuration function:
+Let's implement! Our data is hierarchical so `d3.nest()` is the right tool: it takes an array and groups it by a key function.
 
+
+[//]: # article-code.js:2
 ```javascript
 function blockLayout() {
 
   var grouper = Math.log;
+  layout.group = function(x) { grouper = x; return this; };
+  return layout;
 
   function layout(data) {
+
+    data.sort(function(a,b) { return b.value - a.value; });
+
     var nested = d3.nest()
       .key(function(d) { return grouper(d.value) })
       .entries(data)
       .map(function(group) {
         group.values.forEach(function(v) {
-          v.units = getUnits(v,group);
+          v.units = getUnits(v.value,group);
         });
         group.total = group.values.reduce(sumValues,0);
         return group;
       });
 
     d3.pairs(nested).forEach(function(pair) {
-      var comparison = {
-        value: pair[1].total,
-        group: pair[0],
+      var group = pair[0], total = pair[1].total;
+      group.values.push({
+        value: total,
+        group: group,
         fromLast: true,
-      };
-      comparison.units = getUnits(comparison,pair[0]);
-      pair[0].values.push(comparison);
+        units: getUnits(total,group)
+      });
     });
+
+    return nested;
   }
 
-  layout.group = function(x) { grouper = x; return this; };
-
-  return layout;
+  function getUnits(value,group) { 
+    return Math.ceil(value/parseInt(group.key));
+  }
+  function sumValues(a,s) { return a + s.value; }
 }
 ```
 
-Returning a function with configuration options is D3's idiomatic style. As JS functions are just objects we attach our configuration method `group()` to specify how we'll be grouping elements. We'll use the layout as follows:
+As layouts are just JavaScript functions, and functions are objects, we expose our configuration function as the layout's `group` property. To configure our layout we call `.group(keyFunction)` on the layout in a chaining style. To use it, we call it on our original dataset to create `salaryGroups` ready for binding.
 
+[//]: # article-code.js:3
 ```javascript
 var layout = blockLayout()
   .group(function(value) {
-    if(value < 1000) return 100;
     if(value < 1e6)  return 1000;
     if(value < 1e9)  return 1e6;
     if(value < 1e12) return 1e9;
@@ -78,24 +90,26 @@ var layout = blockLayout()
 var salaryGroups = layout(listOfSalaries);
 ```
 
-This layout is now reusable. If we had another dataset with huge variance, such as sizes from atoms up to galaxy circumferences, we could reuse the layout. It's a pure data implementation of the XKCD visualisation and as such everything to do with a given visualisation is passed in as config.
+At this point we've not displayed anything on screen. This division of labour allows our layout to be reused with different data sets, key functions and final visualisations.
 
-Now we've got our data in the right format we can start visualising. D3 is a thin wrapper around the DOM so your existing HTML, CSS, JS and SVG skills are all you'll need to figure this out. We have a hierarchy: top level groups of magnitude, then individual incomes, then the units of millions or billions. SVG great when need the kind of bizarre shape that HTML doesn't support, like the exotic 'circle', but this time we don't need such fanciness. I came up with this hierarchy:
+Now we've cleaned up our data we can visualise. Here's a sketch of the HTML/CSS implementation:
 
 ![A sketch of the HTML/CSS implementation of the visualisation](../img/sketch.jpg)
 
-Let's get started by appending top level groups:
+We append the top level groups to represent the `salaryGroups` from our layout:
 
+[//]: # article-code.js:4
 ```javascript
-var groups = d3.select(el).selectAll(".group")
-  .data(data);
+var groups = d3.select("#viz").selectAll(".group")
+  .data(salaryGroups)
 
 var groupsEntering = groups.enter()
   .append("div").attr("class","group")
 ```
 
-Next we want to create our salary elements. Our data is nested: we're currently working with datums of the shape `{ key: "1000", values: [/* salaries */] }`. We therefore make a selection of `.salary` elements and then pass a function to data that extracts the values from each group, as the selection's data.
+Next we present the individual salaries. Our data is nested: we've appended elements for the top level group data which has the shape `{ key: "1000", values: [/* salaries */] }`. We therefore make a selection of `.salary` elements inside each group, and pass a function pulling out `.values` to `data()` to dig down the hierarchy for the salaries:
 
+[//]: # article-code.js:5
 ```javascript
 var salaries = groups.selectAll(".salary")
   .data(function(x) { return x.values; });
@@ -104,29 +118,31 @@ var salariesEntering = salaries.enter()
   .append("div").attr("class","salary");
 ```
 
-As you can see, after we've handled the nesting we're back to business as normal. We create tracks, and then use our `data()` trick again to make many units from each salary.
+Finally our units: we create track elements per salary, then use our nested `data()` trick again to make many units from each salary.
 
+[//]: # article-code.js:6
 ```javascript
 var units = salariesEntering
   .append("div").attr("class","track")
-  .selectAll(".unit")
-  .data(createBlocks)
+  .selectAll(".unit").data(createBlocks)
   .enter()
   .append("div").attr("class","unit")
 ```
 
-`createBlocks()` is simple: if salary needs 10 unit blocks, return an array of length 10:
+`createBlocks()` is simple: if a salary needs 10 unit blocks, return an array of length 10:
 
+[//]: # article-code.js:7
 ```javascript
 function createBlocks(salary) {
-   var blockCount = salary.units;
+   var blockCount = salary.units, blocks = [];
    while(blockCount--) blocks.push(salary);
    return blocks;
 }
 ```
 
-CSS should define all styling that doesn't vary per datum. We want the units to flow naturally inside a constrained track. The rest of the styling is every-day, so I'll leave that as an exercise.
+It's easier to define all static styling via CSS. We want the units to flow inside a constrained track. The rest of the styling I'll leave to you.
 
+[//]: # article-css.css:1
 ```css
 .unit {
   float: left;
@@ -137,24 +153,11 @@ CSS should define all styling that doesn't vary per datum. We want the units to 
   width: 200px; }
 ```
 
-![Basic styled output](../img/basic-styled.png)
+![The visualisation's output with basic styling.](../img/basic-styled.png)
 
-We could colour each group by hand, but `d3.scale` is here to help. Scales are D3's tool to relate ranges of values in your data to a range of presentation styles, for instance the age range 18-65 to the colors `#a00` to `#f00`. In this case we want a discrete set of colours:
+With a little more styling and titles added we're done. Now get out there and visualise!
 
-```javascript
-var color = d3.scale.category10();
-
-// used to style our unit blocks
-units.style("background",function(salary) {
-  return color(salary.group.key);
-});
-```
-
-With a few extra styling and markup tweaks we've got a finished visualisation!
-
-![Complete - it's testament to D3 that we recreated the visualisation in under 150 lines of JS, HTML and CSS](../img/complete.png)
-
-
+![The complete visualisation. It's testament to D3's design that it comes in at under 150 lines of JS, HTML and CSS.](../img/complete.png)
 
 __BOX__
 
@@ -216,9 +219,16 @@ As a demonstration, here's a colour wheel using two scales sharing the same doma
 
 You can see it live at truffles.me.uk/dotnet-d3/colour-wheel, and the code is at truffles.me.uk/dotnet-d3/colour-wheel-code.
 
+__BIG_QUOTE
+
+Getting your data into the right shape is half the challenge
+
+__BIG_QUOTE
+
+D3 & SVG lets you break out from the boxy world of HTML/CSS
+
 __END__
 Box 1: quick intro to d3
-Box 2: nest
 Box 3: scales?
 
 Image 1: XKCD original (or sketch version)
