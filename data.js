@@ -3,7 +3,8 @@ var conversions = {
   "$": 0.59
 };
 var usdToGbp = 0.59;
-var DATA = [
+var listOfSalaries;
+var DATA = listOfSalaries = [
   [ "Nurse", c('£',22000), "http://www.prospects.ac.uk/adult_nurse_salary.htm" ],
   [ "Trader", c('£',1e5), "http://www.prospects.ac.uk/financial_trader_salary.htm" ],
   [ "Air travel assistants", c('£',22354), "http://www.thisismoney.co.uk/money/article-2269520/Best-paid-jobs-2012-Official-figures-national-average-UK-salaries-400-occupations.html" ],

@@ -96,8 +96,6 @@ function blockLayout() {
         return group;
       });
 
-    // each group has access to previous group and we add an additional
-    // value: the total of the previous group
     d3.pairs(nested).forEach(function(pair) {
       var comparison = {
         value: pair[1].total,
@@ -119,12 +117,9 @@ function blockLayout() {
 
   return layout;
 
-  function getUnits(value,group) {
-    var unit = parseInt(group.key);
-    return Math.ceil(value.value/unit);
+  function getUnits(value,group) { 
+    return Math.ceil(value.value/parseInt(group.key));
   }
 
-  function sumValues(a,s) {
-    return a + s.value;
-  }
+  function sumValues(a,s) { return a + s.value; }
 }
